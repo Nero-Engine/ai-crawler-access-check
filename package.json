@@ -1,0 +1,14 @@
+{
+  "name": "ai-crawler-access-check",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GitHub Action and CLI: check whether robots.txt or a firewall blocks GPTBot, OAI-SearchBot, ChatGPT-User, ClaudeBot, PerplexityBot and other AI crawlers.",
+  "license": "MIT",
+  "scripts": {
+    "build": "esbuild src/main.ts --bundle --platform=node --target=node20 --format=cjs --outfile=dist/index.js --legal-comments=none",
+    "check": "node dist/index.js example.com"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  }
+}

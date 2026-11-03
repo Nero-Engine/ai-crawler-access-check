@@ -1,0 +1,43 @@
+name: self-test
+on:
+  push:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 6 * * 1'
+jobs:
+  open-site:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: check
+        uses: ./
+        with:
+          urls: example.com
+      - name: Expect pass
+        run: test "${{ steps.check.outputs.result }}" = "pass"
+  blocking-site:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: check
+        uses: ./
+        continue-on-error: true
+        with:
+          urls: |
+            https://www.bbc.co.uk
+            https://www.nytimes.com
+      - name: Expect fail with OAI-SearchBot blocked
+        run: |
+          test "${{ steps.check.outputs.result }}" = "fail"
+          echo '${{ steps.check.outputs.blocked-bots }}' | grep -q OAI-SearchBot
+  report-only:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: check
+        uses: ./
+        with:
+          urls: https://www.bbc.co.uk
+          fail-on: none
+          bots: all
+      - run: echo '${{ steps.check.outputs.report }}' | jq '.[0].verdict'

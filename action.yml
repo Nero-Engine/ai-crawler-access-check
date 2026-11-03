@@ -1,0 +1,46 @@
+name: 'AI Crawler Access Check: GPTBot, ClaudeBot, PerplexityBot'
+description: 'Fail the build when robots.txt or a firewall blocks AI search crawlers like OAI-SearchBot and PerplexityBot. Checks llms.txt.'
+author: 'Nero Labs'
+branding:
+  icon: 'shield'
+  color: 'red'
+inputs:
+  urls:
+    description: 'One or more URLs to check, one per line or comma separated (up to 50). A bare domain like example.com is fine.'
+    required: true
+  bots:
+    description: 'Crawlers to check, comma separated, or "all". Default: GPTBot, OAI-SearchBot, ChatGPT-User, ClaudeBot, Claude-SearchBot, PerplexityBot, Google-Extended, Meta-ExternalAgent. Also known: Claude-User, Applebot-Extended, CCBot.'
+    required: false
+    default: ''
+  fail-on:
+    description: 'When to fail the step. "search" (default) = any AI search or user-click crawler is blocked (OAI-SearchBot, ChatGPT-User, PerplexityBot, Claude-SearchBot, Claude-User). "any" = any checked crawler is blocked. "none" = report only. Or a comma separated list of crawler names that must be allowed.'
+    required: false
+    default: 'search'
+  fetch-test:
+    description: 'Also request each page with every crawler''s real user agent and compare with a browser request, to catch firewall and CDN blocks that robots.txt does not show.'
+    required: false
+    default: 'true'
+  check-llms-txt:
+    description: 'Look for /llms.txt and suggest adding one when it is missing.'
+    required: false
+    default: 'true'
+  require-llms-txt:
+    description: 'Fail the step when a site has no /llms.txt.'
+    required: false
+    default: 'false'
+  timeout-seconds:
+    description: 'Per request timeout in seconds (5 to 60).'
+    required: false
+    default: '20'
+outputs:
+  result:
+    description: '"pass" or "fail".'
+  blocked-count:
+    description: 'How many crawler results were blocked across all URLs.'
+  blocked-bots:
+    description: 'Comma separated names of every crawler blocked on at least one URL.'
+  report:
+    description: 'Full JSON report: per URL verdict, robots.txt state, llms.txt, and per crawler blocked, blocked by (robots.txt or firewall), robots verdict and fetch result.'
+runs:
+  using: 'node24'
+  main: 'dist/index.js'
